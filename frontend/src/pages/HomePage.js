@@ -8,6 +8,9 @@ const HomePage = () => {
     const [ inputValue, setInputValue ] = useState('');
     const [ data, setData] = useState([])
     const [ copied, setCopied ] = useState(false)
+    const [ full, setFull ] = useState("")
+
+    const base = "http://localhost:8000";
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -15,15 +18,14 @@ const HomePage = () => {
             const res = await axios.post("http://localhost:8000/url", {
                 url: Url
             })
-            console.log({res})
-            setInputValue(res.data.id)
-            console.log(inputValue)
+            setInputValue(res.data.id);
+            setFull(base + "/" + inputValue);
+            console.log(full)
         } catch(error) {}
-        console.log(Url.id)
     }
-
+    //function to copy the text from button 
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(`https://sarthaksURLshortner/${inputValue}`)
+        navigator.clipboard.writeText(`${inputValue}`)
         .then(() => {
             setCopied(true);
             setTimeout(() => {
@@ -36,17 +38,21 @@ const HomePage = () => {
         )
     }
 
-    const handleClick = async () => {
-        const res = await axios.get(`/`)
+    const handleLink = async () => {
+        const res = await axios.get(full)
+        window.location.replace(res)
     }
+
 
     useEffect(() => {
         const fetchUrl = async () => {
-            const res = await axios.get("http://localhost:8000/url")
+            const res = await axios.get("http://localhost:8000/")
             setData(res.data)
         }
         fetchUrl()
-    })
+    }, )
+
+
   return (
     <div className='py-12 flex flex-col items-center space-y-12 min-h-screen w-full'>
         <h1 className='text-6xl font-extrabold text-indigo-700'>Sarthak's Short Url</h1>
@@ -102,17 +108,16 @@ const HomePage = () => {
                         <th scope="col" className="px-6 py-4">Number of Clicks</th>
                         </tr>
                     </thead>
-                    {data.map((item, index) => (
+                        {data.map((item, index) => (
                         <tbody key={item.id}>
                             <tr key={index+1} className={`border-b dark:border-neutral-500 text-sky-600 font-bold ${(index+1) % 2 === 1 ? 'bg-white' : 'bg-transparent'}`}>
                                 <td className="whitespace-nowrap px-6 py-4 font-medium text-black">{index+1}</td>
-                                <td className="whitespace-nowrap px-6 py-4"><a onClick={handleClick} target="_blank" rel="noreferrer">{item.redirectURL}</a></td>
-                                <td className="whitespace-nowrap px-6 py-4"><a href={item.redirectURL} target='_blank' rel="noreferrer">{`${item.shortId}`}</a></td>
+                                <td className="whitespace-nowrap px-6 py-4"><a href={item.redirectURL} target="_blank" rel="noreferrer">{item.redirectURL}</a></td>
+                                <td className="whitespace-nowrap px-6 py-4"><a href={`http://localhost:8000/${item.shortId}`} target='_blank' rel="noreferrer">{`${item.shortId}`}</a></td>
                                 <td className="whitespace-nowrap px-6 py-4 text-black">{item.visitHistory.length}</td>
                             </tr>
                         </tbody>
-                    ))}
-                    
+                    ))}                  
                     </table>
                 </div>
                 </div>
